@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
                     # --------- Call function here ---------
                     print("\t----- Result Output To Be Stored In Database -----")
-                    information = convert_raw_to_information(str(raw_data))
+                    information = convert_raw_to_information(raw_data)
                     print(information)
 
                     if information["Live/Memory"] == "L":
