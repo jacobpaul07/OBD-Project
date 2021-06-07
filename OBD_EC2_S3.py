@@ -53,7 +53,8 @@ if __name__ == '__main__':
                     data = conn.recv(1024)
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
-                    raw_data = data.decode("utf-8")
+                    raw_data = data.decode()
+                    print("testing:",rawdata)
                     list = raw_data.split(",")
                     #print(list)
                     if not data:
