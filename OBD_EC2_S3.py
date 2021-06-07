@@ -53,7 +53,7 @@ if __name__ == '__main__':
                     data = conn.recv(1024)
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
-                    raw_data = data.decode()
+                    raw_data = data.decode('UTF-8')
                     print("testing:",raw_data)
                     list = raw_data.split(",")
                     #print(list)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
                     # --------- Call function here ---------
                     print("\t----- Result Output To Be Stored In Database -----")
-                    information = convert_raw_to_information(raw_data)
+                    information = convert_raw_to_information(str(raw_data))
                     print(information)
 
                     if information["Live/Memory"] == "L":
