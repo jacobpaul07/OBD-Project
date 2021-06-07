@@ -54,7 +54,7 @@ if __name__ == '__main__':
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
                     raw_data = data.decode()
-                    print("testing:",rawdata)
+                    print("testing:",raw_data)
                     list = raw_data.split(",")
                     #print(list)
                     if not data:
