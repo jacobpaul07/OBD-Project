@@ -118,10 +118,18 @@ def convert_raw_to_information(input_data):
     elif raw_data[1] == "ATL":
         print("[GPS PACKET]: ", raw_data)
         gps_data = convert_GPS_data(raw_data)
-        cli.put_object(
-            Body=str(gps_data),
-            Bucket='ec2-obd2-bucket',
-            Key='GPS/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+        if raw_data[0] == "L":
+            cli.put_object(
+                Body=str(gps_data),
+                Bucket='ec2-obd2-bucket',
+                Key='GPS/L/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+
+        elif raw_data[0] == "H":
+            cli.put_object(
+                Body=str(gps_data),
+                Bucket='ec2-obd2-bucket',
+                Key='GPS/H/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+
         return gps_data
 
     elif raw_data[1] == "ATLOBD":
@@ -137,7 +145,7 @@ def convert_raw_to_information(input_data):
 
 if __name__ == '__main__':
 
-    HOST = ''  # Standard loopback interface address (localhost)
+    HOST = '172.31.81.140'  # Standard loopback interface address (localhost)
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -163,4 +171,4 @@ if __name__ == '__main__':
                     convert_raw_to_information(data)
                     a = b'@866039048589957,00,1234,*CS'
                     conn.send(b'@866039048589957,00,7318,*CS')
-                    print("--------------------------------------------------------------------------------------------")
+                    print("------------------------------------------------------------------------------------------")
