@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9d9bb65afad7442896d8478173c34164 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_9d9bb65afad7442896d8478173c34164" ></div>
+        
+</body>
+<script>    
+    
+            var map_9d9bb65afad7442896d8478173c34164 = L.map(
+                "map_9d9bb65afad7442896d8478173c34164",
+                {
+                    center: [8.488947, 79.346046],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 15,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_15bd8a899d9f4744966a923561a8a02c = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_9d9bb65afad7442896d8478173c34164);
+        
+    
+            var marker_ac131859c9c44edc84c00720776fbeaa = L.marker(
+                [8.488947, 79.346046],
+                {"fillColor": "#43d9de", "radius": 500}
+            ).addTo(map_9d9bb65afad7442896d8478173c34164);
+        
+    
+            var marker_469328ec0a63434da125227da7be9578 = L.marker(
+                [8.488947, 79.346046],
+                {"radius": 500}
+            ).addTo(map_9d9bb65afad7442896d8478173c34164);
+        
+    
+        var popup_07a26ed58d194289af31ddab4a3e3ee1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cc2bd18be1c24dd2a8eb6bac0ac1a68c = $(`<div id="html_cc2bd18be1c24dd2a8eb6bac0ac1a68c" style="width: 100.0%; height: 100.0%;">OBD Device No: <br> 65615765277</div>`)[0];
+            popup_07a26ed58d194289af31ddab4a3e3ee1.setContent(html_cc2bd18be1c24dd2a8eb6bac0ac1a68c);
+        
+
+        marker_469328ec0a63434da125227da7be9578.bindPopup(popup_07a26ed58d194289af31ddab4a3e3ee1)
+        ;
+
+        
+    
+    
+            marker_469328ec0a63434da125227da7be9578.bindTooltip(
+                `<div>
+                     OBD Device
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var circle_8dda5ced05284326a19897bbc2d52068 = L.circle(
+                [8.488947, 79.346046],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 500, "stroke": true, "weight": 3}
+            ).addTo(map_9d9bb65afad7442896d8478173c34164);
+        
+    
+                var lat_lng_popup_8c524a11b4fe46f9a5081ffcbce4767b = L.popup();
+                function latLngPop(e) {
+                    lat_lng_popup_8c524a11b4fe46f9a5081ffcbce4767b
+                        .setLatLng(e.latlng)
+                        .setContent("Latitude: " + e.latlng.lat.toFixed(4) +
+                                    "<br>Longitude: " + e.latlng.lng.toFixed(4))
+                        .openOn(map_9d9bb65afad7442896d8478173c34164);
+                    }
+                map_9d9bb65afad7442896d8478173c34164.on('click', latLngPop);
+            
+</script>
