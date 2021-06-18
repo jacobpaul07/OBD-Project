@@ -151,7 +151,7 @@ if __name__ == '__main__':
                     print(data)
                     if not data:
                         break
-                    if convert_raw_to_information(data)["Latitude"]:
+                    if convert_raw_to_information(data)["Message Type"] == "02" and convert_raw_to_information(data)["Live/Memory"] == "L":
                         lat = convert_raw_to_information(data)["Latitude"]
                         lon = convert_raw_to_information(data)["Longitude"]
                         if count == 0:
