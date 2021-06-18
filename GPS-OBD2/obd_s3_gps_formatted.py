@@ -169,7 +169,7 @@ if __name__ == '__main__':
                     if not data:
                         break
                     cli = boto3.client('s3')
-                    if convert_raw_to_information(data)["Latitude"]:
+                    if convert_raw_to_information(data)["Message Type"] == "02" and convert_raw_to_information(data)["Live/Memory"] == "L":
                         lat = convert_raw_to_information(data)["Latitude"]
                         lon = convert_raw_to_information(data)["Longitude"]
                         if count == 0:
@@ -190,7 +190,7 @@ if __name__ == '__main__':
                                 Body=str(lat,lon),
                                 Bucket='ec2-obd2-bucket',
                                 Key='GPS/Live/OBD2--{}.txt'.format(str(datetime.datetime.now())))
-                    
+
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
                         print("live: ",lat,lon)
 
