@@ -169,24 +169,28 @@ if __name__ == '__main__':
                     if not data:
                         break
                     cli = boto3.client('s3')
-                    if convert_raw_to_information(data)["Message Type"] == "02" and convert_raw_to_information(data)["Live/Memory"] == "L":
+                    if convert_raw_to_information(data)["Latitude"]:
                         lat = convert_raw_to_information(data)["Latitude"]
                         lon = convert_raw_to_information(data)["Longitude"]
                         if count == 0:
                             gpslist_lat.insert(0,lat)
                             gpslist_lon.insert(0,lon)
-                            gps_one(lat,lon)
-                            cli.put_object(
-                                Body=str(lat,lon),
-                                Bucket='ec2-obd2-bucket',
-                                Key='GPS/Initial/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                            if lat == "":
+                                print("No Lat Lon available")
+                            else:
+                                gps_one(lat, lon)
+                                count += 1
+                                cli.put_object(
+                                    Body=str(lat,lon),
+                                    Bucket='ec2-obd2-bucket',
+                                    Key='GPS/Initial/OBD2--{}.txt'.format(str(datetime.datetime.now())))
                         else:
                             gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
                             cli.put_object(
                                 Body=str(lat,lon),
                                 Bucket='ec2-obd2-bucket',
                                 Key='GPS/Live/OBD2--{}.txt'.format(str(datetime.datetime.now())))
-                        count += 1
+                    
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
                         print("live: ",lat,lon)
 
