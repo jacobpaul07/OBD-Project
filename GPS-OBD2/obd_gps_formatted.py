@@ -1,8 +1,6 @@
 import socket
 import datetime
-import pandas as pd
-import numpy as np
-import re
+
 from obd_gps import gps_one, gps_main
 
 
@@ -115,7 +113,7 @@ def convert_raw_to_information(input_data):
 
     # --------- GPS vs OBD Data ---------
     elif raw_data[1] == "ATL":
-        print("[GPS PACKET]: ", raw_data)
+        #print("[GPS PACKET]: ", raw_data)
         gps_data = convert_GPS_data(raw_data)
         return gps_data
 
@@ -128,7 +126,7 @@ def convert_raw_to_information(input_data):
 
 if __name__ == '__main__':
 
-    HOST = '192.168.29.30'  # Standard loopback interface address (localhost)
+    HOST = 'localhost'  # Standard loopback interface address (localhost)
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -137,8 +135,8 @@ if __name__ == '__main__':
         print("Server is Listening...")
         print("Please Wait")
         count = 0
-        gpslist_lat=[]
-        gpslist_lon=[]
+        gpslist_lat = []
+        gpslist_lon = []
         while True:
             conn, addr = s.accept()
             print("Conneting..")
@@ -146,24 +144,31 @@ if __name__ == '__main__':
             with conn:
                 print('Connected by', addr)
                 while True:
-                    data = conn.recv(10240)
+                    data = conn.recv(1024)
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
                     if not data:
                         break
+
                     if convert_raw_to_information(data)["Message Type"] == "02" and convert_raw_to_information(data)["Live/Memory"] == "L":
                         lat = convert_raw_to_information(data)["Latitude"]
                         lon = convert_raw_to_information(data)["Longitude"]
+                        print("Test",lat,lon)
                         if count == 0:
-                            gpslist_lat.insert(0,lat)
-                            gpslist_lon.insert(0,lon)
-                            gps_one(lat,lon)
+                            gpslist_lat.insert(0, lat)
+                            gpslist_lon.insert(0, lon)
+                            if lat == "":
+                                print("No Lat Lon available")
+                            else:
+                                gps_one(lat, lon)
+                                count += 1
                         else:
-                            gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
-                        count += 1
-                        print("initial:",gpslist_lat[0],gpslist_lon[0])
-                        print("live: ",lat,lon)
+                            gps_main(gpslist_lat[0], gpslist_lon[0], lat, lon)
+
+                        print(count)
+                        print("initial:", gpslist_lat[0], gpslist_lon[0])
+                        print("live: ", lat, lon)
 
                     a = b'@866039048589957,00,1234,*CS'
                     conn.send(b'@866039048589171,00,0518,*CS')
-                    print("--------------------------------------------------------------------------------------------")
+                    print("------------------------------------------------------------------------------------------")
