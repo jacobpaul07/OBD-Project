@@ -1,3 +1,4 @@
+import boto3
 import folium
 import numpy as np
 from IPython.display import HTML
@@ -46,6 +47,11 @@ def gps_main(lat, lon, lat_live, lon_live):
     print("Result:")
     print("In KM.   : ", distance, "km")
     print("In meters: ", distance * 1000, "m")
+    cli = boto3.client('s3')
+    cli.put_object(
+        Body=str(distance * 1000),
+        Bucket='ec2-obd2-bucket',
+        Key='GPS/Distance/OBD2--{}.txt'.format(str(datetime.datetime.now())))
 
     if distance * 1000 <= float(radius):
         print("OBD device is under given area")
