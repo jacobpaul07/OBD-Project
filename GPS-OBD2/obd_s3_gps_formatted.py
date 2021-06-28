@@ -180,14 +180,17 @@ if __name__ == '__main__':
                             else:
                                 gps_one(lat, lon)
                                 count += 1
+                                coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                                  
                                 cli.put_object(
-                                    Body=str(lat,lon),
+                                    Body=str(coordinates),
                                     Bucket='ec2-obd2-bucket',
                                     Key='GPS/Initial/OBD2--{}.txt'.format(str(datetime.datetime.now())))
                         else:
                             gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+                            coordinates = {'Latitude' : lat, 'Longitude' : lon }
                             cli.put_object(
-                                Body=str(lat,lon),
+                                Body=str(coordinates),
                                 Bucket='ec2-obd2-bucket',
                                 Key='GPS/Live/OBD2--{}.txt'.format(str(datetime.datetime.now())))
 
