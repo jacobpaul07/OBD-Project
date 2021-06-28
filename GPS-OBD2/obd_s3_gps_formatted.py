@@ -178,7 +178,6 @@ if __name__ == '__main__':
                             if lat == "":
                                 print("No Lat Lon available")
                             else:
-                                gps_one(lat, lon)
                                 count += 1
                                 coordinates = {'Latitude' : lat, 'Longitude' : lon }
                                   
@@ -186,13 +185,15 @@ if __name__ == '__main__':
                                     Body=str(coordinates),
                                     Bucket='ec2-obd2-bucket',
                                     Key='GPS/Initial/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                                gps_one(lat, lon)
                         else:
-                            gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+                            
                             coordinates = {'Latitude' : lat, 'Longitude' : lon }
                             cli.put_object(
                                 Body=str(coordinates),
                                 Bucket='ec2-obd2-bucket',
                                 Key='GPS/Live/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                            gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
                         print("live: ",lat,lon)
