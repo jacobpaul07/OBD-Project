@@ -5,7 +5,7 @@ from IPython.display import HTML
 from math import sin, cos, sqrt, atan2, radians
 import datetime
 
-radius = 5
+radius = 2
 
 
 def gps_one(lat, lon):
