@@ -107,7 +107,7 @@ def convert_raw_to_information(input_data):
 
     # --------- Check for Login packet ---------
     if len(raw_data) < 8:
-        print("[LOGIN PACKET]: ", raw_data)
+       # print("[LOGIN PACKET]: ", raw_data)
         login_data = convert_LOGIN_data(raw_data)
         cli.put_object(
             Body=str(login_data),
@@ -117,7 +117,7 @@ def convert_raw_to_information(input_data):
 
     # --------- GPS vs OBD Data ---------
     elif raw_data[1] == "ATL":
-        print("[GPS PACKET]: ", raw_data)
+        # print("[GPS PACKET]: ", raw_data)
         gps_data = convert_GPS_data(raw_data)
         if raw_data[0] == "L":
             cli.put_object(
@@ -133,7 +133,7 @@ def convert_raw_to_information(input_data):
         return gps_data
 
     elif raw_data[1] == "ATLOBD":
-        print("[OBD PACKET]: ", raw_data)
+        # print("[OBD PACKET]: ", raw_data)
         obd_data = convert_OBD_data(raw_data)
         cli.put_object(
             Body=str(obd_data),
