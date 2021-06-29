@@ -4,7 +4,7 @@ import numpy as np
 from IPython.display import HTML
 from math import sin, cos, sqrt, atan2, radians
 
-radius = 500
+radius = 5
 
 
 def gps_one(lat, lon):
