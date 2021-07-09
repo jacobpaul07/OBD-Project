@@ -98,16 +98,13 @@ def convert_raw_to_information(input_data):
     """
     # --------- Data decoding from byte to str ---------
     input_file = input_data.decode("UTF-8", errors='ignore')
-    # print("[UTF-8 Converted Data] \n {}".format(input_file))
 
     # --------- Data splitting based on comma ---------
     input_file = input_file.replace(';', ',')
     raw_data = input_file.split(',')
-    # print("[UTF-8 Raw Data List] \n {}".format(raw_data))
 
     # --------- Check for Login packet ---------
     if len(raw_data) < 8:
-       # print("[LOGIN PACKET]: ", raw_data)
         login_data = convert_LOGIN_data(raw_data)
         cli.put_object(
             Body=str(login_data),
@@ -117,7 +114,6 @@ def convert_raw_to_information(input_data):
 
     # --------- GPS vs OBD Data ---------
     elif raw_data[1] == "ATL":
-        # print("[GPS PACKET]: ", raw_data)
         gps_data = convert_GPS_data(raw_data)
         if raw_data[0] == "L":
             cli.put_object(
@@ -133,7 +129,6 @@ def convert_raw_to_information(input_data):
         return gps_data
 
     elif raw_data[1] == "ATLOBD":
-        # print("[OBD PACKET]: ", raw_data)
         obd_data = convert_OBD_data(raw_data)
         cli.put_object(
             Body=str(obd_data),
