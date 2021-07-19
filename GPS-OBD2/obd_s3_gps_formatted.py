@@ -2,6 +2,7 @@ import boto3
 import socket
 import datetime
 from obd_gps import gps_one, gps_main
+from Utils.calculate_engine_RPM import calculate_engine_RPM
 
 
 def convert_LOGIN_data(login_data):
@@ -130,6 +131,8 @@ def convert_raw_to_information(input_data):
 
     elif raw_data[1] == "ATLOBD":
         obd_data = convert_OBD_data(raw_data)
+        rpm = calculate_engine_RPM(obd_data)
+        print(f'Engine RPM = {rpm}')
         cli.put_object(
             Body=str(obd_data),
             Bucket='ec2-obd2-bucket',
