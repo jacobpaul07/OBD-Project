@@ -205,7 +205,7 @@ if __name__ == '__main__':
                     seperator = ","
                     joinedPacket = seperator.join(packet)
                     bytesPacket = bytes(joinedPacket, 'utf-8')
-                    print(bytesPacket)
+                    print("Return Packet:",bytesPacket)
 
                     # Harish OBD: IMEI = 866039048589957
                     # Mani OBD : IMEI = 866039048589171
