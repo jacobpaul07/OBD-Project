@@ -100,15 +100,15 @@ def convert_raw_to_information(input_data):
     '''
     # --------- Data decoding from byte to str ---------
     input_file = input_data.decode("UTF-8")
-    print("[UTF-8 Converted Data] \n {}".format(input_file))
+    # print("[UTF-8 Converted Data] \n {}".format(input_file))
 
     # --------- Data splitting based on comma ---------
     input_file = input_file.replace(';', ',')
     raw_data = input_file.split(',')
-    print("[UTF-8 Raw Data List] \n {}".format(raw_data))
+    # print("[UTF-8 Raw Data List] \n {}".format(raw_data))
 
     # --------- Check for Login packet ---------
-    if len(raw_data) < 7:
+    if len(raw_data) < 8:
         print("[LOGIN PACKET]: ", raw_data)
         login_data = convert_LOGIN_data(raw_data)
         return login_data
@@ -128,7 +128,7 @@ def convert_raw_to_information(input_data):
 
 if __name__ == '__main__':
 
-    HOST = '192.168.29.30'  # Standard loopback interface address (localhost)
+    HOST = '192.168.1.8'  # Standard loopback interface address (localhost)
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -151,5 +151,5 @@ if __name__ == '__main__':
                         break
                     convert_raw_to_information(data)
                     a = b'@866039048589957,00,1234,*CS'
-                    conn.send(b'@866039048589957,00,7318,*CS')
+                    conn.send(b'@866039048589957,00,0518,*CS')
                     print("--------------------------------------------------------------------------------------------")

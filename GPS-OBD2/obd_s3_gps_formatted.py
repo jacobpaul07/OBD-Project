@@ -167,9 +167,10 @@ if __name__ == '__main__':
                     if not data:
                         break
                     cli = boto3.client('s3')
-                    if convert_raw_to_information(data)["Message Type"] == "02" and convert_raw_to_information(data)["Live/Memory"] == "L":
-                        lat = convert_raw_to_information(data)["Latitude"]
-                        lon = convert_raw_to_information(data)["Longitude"]
+                    fData = convert_raw_to_information(data)
+                    if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+                        lat = fData["Latitude"]
+                        lon = fData["Longitude"]
                         if count == 0:
                             gpslist_lat.insert(0,lat)
                             gpslist_lon.insert(0,lon)
@@ -195,10 +196,19 @@ if __name__ == '__main__':
 
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
                         print("live: ",lat,lon)
+                    
+                    IMEI = "@"+fData["IMEI"]
+                    messageType = "00"
+                    sequenceNumber = fData["Sequence No"]
+                    checkSum = "*CS"
+                    packet = IMEI,messageType,sequenceNumber,checkSum
+                    seperator = ","
+                    joinedPacket = seperator.join(packet)
+                    bytesPacket = bytes(joinedPacket, 'utf-8')
+                    print(bytesPacket)
 
-                    a = b'@866039048589171,00,1234,*CS'
                     # Harish OBD: IMEI = 866039048589957
                     # Mani OBD : IMEI = 866039048589171
                     # Aneesh OBD : IMEI = 866039048578802
-                    conn.send(b'@866039048578802,00,0518,*CS')
+                    conn.send(bytesPacket)
                     print("--------------------------------------------------------------------------------------------")
