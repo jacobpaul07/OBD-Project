@@ -218,7 +218,7 @@ if __name__ == '__main__':
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(HOST, PORT)
+    s.bind((HOST, PORT))
     s.listen()
     print("Server is Listening...")
     print("Please Wait")
