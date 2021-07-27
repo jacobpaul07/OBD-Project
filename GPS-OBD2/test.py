@@ -109,6 +109,7 @@ def convert_raw_to_information(input_data):
     if len(raw_data) < 8:
         print("[LOGIN PACKET]: ", raw_data)
         login_data = convert_LOGIN_data(raw_data)
+        print("login data == ",login_data["IMEI"])
         return login_data
 
     # --------- GPS vs OBD Data ---------
@@ -166,7 +167,6 @@ if __name__ == '__main__':
     bytesPacket = bytes(joinedPacket, 'utf-8')
     print(bytesPacket)
 
-    a = b'@866039048589957,00,1234,*CS'
     # conn.send(b'@866039048589171,00,0518,*CS')
     print("------------------------------------------------------------------------------------------")
 

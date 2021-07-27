@@ -107,36 +107,39 @@ def convert_raw_to_information(input_data):
     # --------- Check for Login packet ---------
     if len(raw_data) < 8:
         login_data = convert_LOGIN_data(raw_data)
+        IMEI = login_data["IMEI"]
         cli.put_object(
             Body=str(login_data),
             Bucket='ec2-obd2-bucket',
-            Key='Login/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+            Key='{0}/Login/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
         return login_data
 
     # --------- GPS vs OBD Data ---------
     elif raw_data[1] == "ATL":
         gps_data = convert_GPS_data(raw_data)
+        IMEI = gps_data["IMEI"]
         if raw_data[0] == "L":
             cli.put_object(
                 Body=str(gps_data),
                 Bucket='ec2-obd2-bucket',
-                Key='GPS/L/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                Key='{0}/GPS/L/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
 
         elif raw_data[0] == "H":
             cli.put_object(
                 Body=str(gps_data),
                 Bucket='ec2-obd2-bucket',
-                Key='GPS/H/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                Key='{0}/GPS/H/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
         return gps_data
 
     elif raw_data[1] == "ATLOBD":
         obd_data = convert_OBD_data(raw_data)
         rpm = calculate_engine_RPM(obd_data)
         print(f'Engine RPM = {rpm}')
+        IMEI = obd_data["IMEI"]
         cli.put_object(
             Body=str(obd_data),
             Bucket='ec2-obd2-bucket',
-            Key='OBD/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+            Key='{0}/OBD/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
         return obd_data
     # -----------------------------------
 
@@ -194,7 +197,7 @@ if __name__ == '__main__':
                                 cli.put_object(
                                     Body=str(coordinates),
                                     Bucket='ec2-obd2-bucket',
-                                    Key='{}/GPS/Initial/OBD2--{}.txt'.format(IMEI,str(datetime.datetime.now())))
+                                    Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
                                 gps_one(lat, lon)
                         else:
                             
@@ -202,7 +205,7 @@ if __name__ == '__main__':
                             cli.put_object(
                                 Body=str(coordinates),
                                 Bucket='ec2-obd2-bucket',
-                                Key='{}/GPS/Live/OBD2--{}.txt'.format(IMEI,str(datetime.datetime.now())))
+                                Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
                             gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
