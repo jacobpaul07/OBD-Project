@@ -145,14 +145,14 @@ def convert_raw_to_information(input_data):
         return obd_data
     # -----------------------------------
 
-def new_client(clientSocket , address):
+def new_client(socket , connection , address):
     print('in threading')
     count = 0
     gpslist_lat=[]
     gpslist_lon=[]
 
     print('Connected by', address)
-    data = clientSocket.recv(1024)
+    data = connection.recv(1024)
     print("TimeStamp: ", datetime.datetime.now())
     print(data)
 
@@ -204,7 +204,19 @@ def new_client(clientSocket , address):
     # Mani OBD : IMEI = 866039048589171
     # Aneesh OBD : IMEI = 866039048578802
     # testbyte = b'@866039048589957,00,0707,*CS'
-    clientSocket.send(bytesPacket)
+    connection.send(bytesPacket)
+    newConnection, newAddress = socket.accept()
+    print("Conneting..",addr)
+
+     # Initializing Threading
+    thread = threading.Thread(
+        target=new_client,
+        args=(newConnection, newAddress)
+    )
+
+    # Starting the Thread
+    thread.start()
+
     # conn.send(testbyte)
     
     print("--------------------------------------------------------------------------------------------")
