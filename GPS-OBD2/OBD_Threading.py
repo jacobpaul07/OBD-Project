@@ -238,5 +238,5 @@ if __name__ == '__main__':
 
         # Starting the Thread
         thread.start()
-    s.close()
+    obdSocket.close()
 
