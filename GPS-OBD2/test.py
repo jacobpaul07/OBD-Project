@@ -3,6 +3,8 @@ import socket
 import datetime
 from obd_gps import gps_one, gps_main
 from Utils.calculate_engine_RPM import calculate_engine_RPM
+import threading
+
 
 
 def convert_LOGIN_data(login_data):
@@ -143,6 +145,72 @@ def convert_raw_to_information(input_data):
         return obd_data
     # -----------------------------------
 
+def new_client(clientSocket , address):
+    count = 0
+    gpslist_lat=[]
+    gpslist_lon=[]
+
+    print(address)
+    
+
+    with clientSocket:
+        print('Connected by', addr)
+        data = conn.recv(1024)
+        print("TimeStamp: ", datetime.datetime.now())
+        print(data)
+
+        if not data:
+            return
+        cli = boto3.client('s3')
+        fData = convert_raw_to_information(data)
+
+        IMEI = "@"+fData["IMEI"]
+        messageType = "00"
+        sequenceNumber = fData["Sequence No"]
+        checkSum = "*CS"
+        packet = IMEI,messageType,sequenceNumber,checkSum
+        seperator = ","
+        joinedPacket = seperator.join(packet)
+        bytesPacket = bytes(joinedPacket, 'utf-8')
+        print("Return Packet:",bytesPacket)
+
+        if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+            lat = fData["Latitude"]
+            lon = fData["Longitude"]
+            if count == 0:
+                gpslist_lat.insert(0,lat)
+                gpslist_lon.insert(0,lon)
+                if lat == "":
+                    print("No Lat Lon available")
+                else:
+                    count += 1
+                    coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                        
+                    cli.put_object(
+                        Body=str(coordinates),
+                        Bucket='ec2-obd2-bucket',
+                        Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+                    gps_one(lat, lon)
+            else:
+                
+                coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                cli.put_object(
+                    Body=str(coordinates),
+                    Bucket='ec2-obd2-bucket',
+                    Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+                gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+
+            print("initial:",gpslist_lat[0],gpslist_lon[0])
+            print("live: ",lat,lon)
+
+        # Harish OBD: IMEI = 866039048589957
+        # Mani OBD : IMEI = 866039048589171
+        # Aneesh OBD : IMEI = 866039048578802
+        # testbyte = b'@866039048589957,00,0707,*CS'
+        conn.send(bytesPacket)
+        # conn.send(testbyte)
+        
+        print("--------------------------------------------------------------------------------------------")
 
 if __name__ == '__main__':
     #AWS IP
@@ -154,72 +222,26 @@ if __name__ == '__main__':
         s.listen()
         print("Server is Listening...")
         print("Please Wait")
-        count = 0
-        gpslist_lat=[]
-        gpslist_lon=[]
+
+
         while True:
             conn, addr = s.accept()
             print(s.accept())
             print("Conneting..")
+            
+            # Initializing Threading
+            thread = threading.Thread(
+                target=new_client,
+                args=(conn, addr)
+            )
 
-            with conn:
-                print('Connected by', addr)
-                data = conn.recv(1024)
-                print("TimeStamp: ", datetime.datetime.now())
-                print(data)
+            # Starting the Thread
+            thread.start()
+        s.close()
 
-                if not data:
-                    break
-                cli = boto3.client('s3')
-                fData = convert_raw_to_information(data)
 
-                IMEI = "@"+fData["IMEI"]
-                messageType = "00"
-                sequenceNumber = fData["Sequence No"]
-                checkSum = "*CS"
-                packet = IMEI,messageType,sequenceNumber,checkSum
-                seperator = ","
-                joinedPacket = seperator.join(packet)
-                bytesPacket = bytes(joinedPacket, 'utf-8')
-                print("Return Packet:",bytesPacket)
+            
 
-                if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
-                    lat = fData["Latitude"]
-                    lon = fData["Longitude"]
-                    if count == 0:
-                        gpslist_lat.insert(0,lat)
-                        gpslist_lon.insert(0,lon)
-                        if lat == "":
-                            print("No Lat Lon available")
-                        else:
-                            count += 1
-                            coordinates = {'Latitude' : lat, 'Longitude' : lon }
-                                
-                            cli.put_object(
-                                Body=str(coordinates),
-                                Bucket='ec2-obd2-bucket',
-                                Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
-                            gps_one(lat, lon)
-                    else:
-                        
-                        coordinates = {'Latitude' : lat, 'Longitude' : lon }
-                        cli.put_object(
-                            Body=str(coordinates),
-                            Bucket='ec2-obd2-bucket',
-                            Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
-                        gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
-
-                    print("initial:",gpslist_lat[0],gpslist_lon[0])
-                    print("live: ",lat,lon)
-
-                # Harish OBD: IMEI = 866039048589957
-                # Mani OBD : IMEI = 866039048589171
-                # Aneesh OBD : IMEI = 866039048578802
-                testbyte = b'@866039048589957,00,0707,*CS'
-                conn.send(bytesPacket)
-                # conn.send(testbyte)
-                
-                print("--------------------------------------------------------------------------------------------")
 
 # if __name__ == '__main__':
 
