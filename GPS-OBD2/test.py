@@ -157,7 +157,7 @@ def new_client(clientSocket , address):
 
     if not data:
         return
-    cli = boto3.client('s3')
+    
     fData = convert_raw_to_information(data)
 
     IMEI = "@"+fData["IMEI"]
@@ -210,7 +210,7 @@ def new_client(clientSocket , address):
 
 if __name__ == '__main__':
     #AWS IP
-    HOST = '172.31.81.140'  # Standard loopback interface address (localhost)
+    HOST = '172.31.81.140'  # Standard loopback interface address (localhost)s
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -218,7 +218,7 @@ if __name__ == '__main__':
     s.listen()
     print("Server is Listening...")
     print("Please Wait")
-
+    cli = boto3.client('s3')
 
     while True:
         conn, addr = s.accept()
