@@ -194,7 +194,7 @@ if __name__ == '__main__':
                                 cli.put_object(
                                     Body=str(coordinates),
                                     Bucket='ec2-obd2-bucket',
-                                    Key='GPS/Initial/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                                    Key='{}/GPS/Initial/OBD2--{}.txt'.format(IMEI,str(datetime.datetime.now())))
                                 gps_one(lat, lon)
                         else:
                             
@@ -202,7 +202,7 @@ if __name__ == '__main__':
                             cli.put_object(
                                 Body=str(coordinates),
                                 Bucket='ec2-obd2-bucket',
-                                Key='GPS/Live/OBD2--{}.txt'.format(str(datetime.datetime.now())))
+                                Key='{}/GPS/Live/OBD2--{}.txt'.format(IMEI,str(datetime.datetime.now())))
                             gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
