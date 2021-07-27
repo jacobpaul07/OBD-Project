@@ -161,13 +161,24 @@ if __name__ == '__main__':
             with conn:
                 print('Connected by', addr)
                 while True:
-                    data = conn.recv(2048)
+                    data = conn.recv(1024)
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
                     if not data:
                         break
                     cli = boto3.client('s3')
                     fData = convert_raw_to_information(data)
+
+                    IMEI = "@"+fData["IMEI"]
+                    messageType = "00"
+                    sequenceNumber = fData["Sequence No"]
+                    checkSum = "*CS"
+                    packet = IMEI,messageType,sequenceNumber,checkSum
+                    seperator = ","
+                    joinedPacket = seperator.join(packet)
+                    bytesPacket = bytes(joinedPacket, 'utf-8')
+                    print("Return Packet:",bytesPacket)
+
                     if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
                         lat = fData["Latitude"]
                         lon = fData["Longitude"]
@@ -196,16 +207,6 @@ if __name__ == '__main__':
 
                         print("initial:",gpslist_lat[0],gpslist_lon[0])
                         print("live: ",lat,lon)
-                    
-                    IMEI = "@"+fData["IMEI"]
-                    messageType = "00"
-                    sequenceNumber = fData["Sequence No"]
-                    checkSum = "*CS"
-                    packet = IMEI,messageType,sequenceNumber,checkSum
-                    seperator = ","
-                    joinedPacket = seperator.join(packet)
-                    bytesPacket = bytes(joinedPacket, 'utf-8')
-                    print("Return Packet:",bytesPacket)
 
                     # Harish OBD: IMEI = 866039048589957
                     # Mani OBD : IMEI = 866039048589171
