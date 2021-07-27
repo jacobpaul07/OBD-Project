@@ -146,6 +146,7 @@ def convert_raw_to_information(input_data):
     # -----------------------------------
 
 def new_client(clientSocket , address):
+    print('in threading')
     count = 0
     gpslist_lat=[]
     gpslist_lon=[]
@@ -209,20 +210,23 @@ def new_client(clientSocket , address):
     print("--------------------------------------------------------------------------------------------")
 
 if __name__ == '__main__':
+
+    cli = boto3.client('s3')
+
     #AWS IP
     HOST = '172.31.81.140'  # Standard loopback interface address (localhost)s
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((HOST, PORT))
+    s.bind(HOST, PORT)
     s.listen()
     print("Server is Listening...")
     print("Please Wait")
-    cli = boto3.client('s3')
+    
 
     while True:
+        print('on while waiting for accept')
         conn, addr = s.accept()
-        print(s.accept())
         print("Conneting..",addr)
         
         # Initializing Threading
