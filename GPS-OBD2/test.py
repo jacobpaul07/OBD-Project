@@ -159,6 +159,7 @@ if __name__ == '__main__':
         gpslist_lon=[]
         while True:
             conn, addr = s.accept()
+            print(s.accept())
             print("Conneting..")
 
             with conn:
@@ -166,6 +167,7 @@ if __name__ == '__main__':
                 data = conn.recv(1024)
                 print("TimeStamp: ", datetime.datetime.now())
                 print(data)
+
                 if not data:
                     break
                 cli = boto3.client('s3')
