@@ -145,7 +145,7 @@ def convert_raw_to_information(input_data):
         return obd_data
     # -----------------------------------
 
-def new_client(socket , connection , address):
+def new_client(connection , address):
     print('in threading')
     count = 0
     gpslist_lat=[]
@@ -205,13 +205,14 @@ def new_client(socket , connection , address):
     # Aneesh OBD : IMEI = 866039048578802
     # testbyte = b'@866039048589957,00,0707,*CS'
     connection.send(bytesPacket)
-    newConnection, newAddress = socket.accept()
-    print("Conneting..",addr)
+    print("--------------------------------------------------------------------------------------------")
+
+
 
      # Initializing Threading
     thread = threading.Thread(
         target=new_client,
-        args=(socket, newConnection, newAddress)
+        args=(connection, address)
     )
 
     # Starting the Thread
@@ -219,7 +220,7 @@ def new_client(socket , connection , address):
 
     # conn.send(testbyte)
     
-    print("--------------------------------------------------------------------------------------------")
+
 
 if __name__ == '__main__':
 
@@ -244,7 +245,7 @@ if __name__ == '__main__':
         # Initializing Threading
         thread = threading.Thread(
             target=new_client,
-            args=(obdSocket, conn, addr)
+            args=(conn, addr)
         )
 
         # Starting the Thread
