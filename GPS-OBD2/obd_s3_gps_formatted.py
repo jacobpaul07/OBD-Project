@@ -216,6 +216,6 @@ if __name__ == '__main__':
                     # Aneesh OBD : IMEI = 866039048578802
                     # testbyte = b'@866039048589957,00,0707,*CS'
                     conn.send(bytesPacket)
-                    conn.send(testbyte)
+                    # conn.send(testbyte)
                     
                     print("--------------------------------------------------------------------------------------------")
