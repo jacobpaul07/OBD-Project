@@ -150,94 +150,90 @@ def new_client(clientSocket , address):
     gpslist_lat=[]
     gpslist_lon=[]
 
-    print(address)
-    
+    print('Connected by', address)
+    data = clientSocket.recv(1024)
+    print("TimeStamp: ", datetime.datetime.now())
+    print(data)
 
-    with clientSocket:
-        print('Connected by', addr)
-        data = conn.recv(1024)
-        print("TimeStamp: ", datetime.datetime.now())
-        print(data)
+    if not data:
+        return
+    cli = boto3.client('s3')
+    fData = convert_raw_to_information(data)
 
-        if not data:
-            return
-        cli = boto3.client('s3')
-        fData = convert_raw_to_information(data)
+    IMEI = "@"+fData["IMEI"]
+    messageType = "00"
+    sequenceNumber = fData["Sequence No"]
+    checkSum = "*CS"
+    packet = IMEI,messageType,sequenceNumber,checkSum
+    seperator = ","
+    joinedPacket = seperator.join(packet)
+    bytesPacket = bytes(joinedPacket, 'utf-8')
+    print("Return Packet:",bytesPacket)
 
-        IMEI = "@"+fData["IMEI"]
-        messageType = "00"
-        sequenceNumber = fData["Sequence No"]
-        checkSum = "*CS"
-        packet = IMEI,messageType,sequenceNumber,checkSum
-        seperator = ","
-        joinedPacket = seperator.join(packet)
-        bytesPacket = bytes(joinedPacket, 'utf-8')
-        print("Return Packet:",bytesPacket)
-
-        if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
-            lat = fData["Latitude"]
-            lon = fData["Longitude"]
-            if count == 0:
-                gpslist_lat.insert(0,lat)
-                gpslist_lon.insert(0,lon)
-                if lat == "":
-                    print("No Lat Lon available")
-                else:
-                    count += 1
-                    coordinates = {'Latitude' : lat, 'Longitude' : lon }
-                        
-                    cli.put_object(
-                        Body=str(coordinates),
-                        Bucket='ec2-obd2-bucket',
-                        Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
-                    gps_one(lat, lon)
+    if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+        lat = fData["Latitude"]
+        lon = fData["Longitude"]
+        if count == 0:
+            gpslist_lat.insert(0,lat)
+            gpslist_lon.insert(0,lon)
+            if lat == "":
+                print("No Lat Lon available")
             else:
-                
+                count += 1
                 coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                    
                 cli.put_object(
                     Body=str(coordinates),
                     Bucket='ec2-obd2-bucket',
-                    Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
-                gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+                    Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+                gps_one(lat, lon)
+        else:
+            
+            coordinates = {'Latitude' : lat, 'Longitude' : lon }
+            cli.put_object(
+                Body=str(coordinates),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+            gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
-            print("initial:",gpslist_lat[0],gpslist_lon[0])
-            print("live: ",lat,lon)
+        print("initial:",gpslist_lat[0],gpslist_lon[0])
+        print("live: ",lat,lon)
 
-        # Harish OBD: IMEI = 866039048589957
-        # Mani OBD : IMEI = 866039048589171
-        # Aneesh OBD : IMEI = 866039048578802
-        # testbyte = b'@866039048589957,00,0707,*CS'
-        conn.send(bytesPacket)
-        # conn.send(testbyte)
-        
-        print("--------------------------------------------------------------------------------------------")
+    # Harish OBD: IMEI = 866039048589957
+    # Mani OBD : IMEI = 866039048589171
+    # Aneesh OBD : IMEI = 866039048578802
+    # testbyte = b'@866039048589957,00,0707,*CS'
+    clientSocket.send(bytesPacket)
+    # conn.send(testbyte)
+    
+    print("--------------------------------------------------------------------------------------------")
 
 if __name__ == '__main__':
     #AWS IP
     HOST = '172.31.81.140'  # Standard loopback interface address (localhost)
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
-        print("Server is Listening...")
-        print("Please Wait")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((HOST, PORT))
+    s.listen()
+    print("Server is Listening...")
+    print("Please Wait")
 
 
-        while True:
-            conn, addr = s.accept()
-            print(s.accept())
-            print("Conneting..")
-            
-            # Initializing Threading
-            thread = threading.Thread(
-                target=new_client,
-                args=(conn, addr)
-            )
+    while True:
+        conn, addr = s.accept()
+        print(s.accept())
+        print("Conneting..",addr)
+        
+        # Initializing Threading
+        thread = threading.Thread(
+            target=new_client,
+            args=(conn, addr)
+        )
 
-            # Starting the Thread
-            thread.start()
-        s.close()
+        # Starting the Thread
+        thread.start()
+    s.close()
 
 
             
