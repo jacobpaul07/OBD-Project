@@ -145,8 +145,8 @@ def convert_raw_to_information(input_data):
         return obd_data
     # -----------------------------------
 
-def new_client(connection , address):
-    print('in threading')
+def new_client(deviceid , connection , address):
+    print('In Threading : ', deviceid)
     count = 0
     gpslist_lat=[]
     gpslist_lon=[]
@@ -212,7 +212,7 @@ def new_client(connection , address):
      # Initializing Threading
     thread = threading.Thread(
         target=new_client,
-        args=(connection, address)
+        args=(deviceid , connection, address)
     )
 
     # Starting the Thread
@@ -236,16 +236,17 @@ if __name__ == '__main__':
     print("Server is Listening...")
     print("Please Wait")
     
-
+    devices = 0
     while True:
-        print('on while waiting for accept')
+        devices = devices + 1
+        print('On while waiting next OBD device: ', devices)
         conn, addr = obdSocket.accept()
         print("Conneting..",addr)
         
         # Initializing Threading
         thread = threading.Thread(
             target=new_client,
-            args=(conn, addr)
+            args=(devices, conn, addr)
         )
 
         # Starting the Thread
