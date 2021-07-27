@@ -161,7 +161,7 @@ if __name__ == '__main__':
             with conn:
                 print('Connected by', addr)
                 while True:
-                    data = conn.recv(4096)
+                    data = conn.recv()
                     print("TimeStamp: ", datetime.datetime.now())
                     print(data)
                     if not data:
