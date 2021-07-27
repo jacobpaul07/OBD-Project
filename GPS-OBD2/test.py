@@ -211,7 +211,7 @@ def new_client(socket , connection , address):
      # Initializing Threading
     thread = threading.Thread(
         target=new_client,
-        args=(newConnection, newAddress)
+        args=(socket, newConnection, newAddress)
     )
 
     # Starting the Thread
@@ -229,22 +229,22 @@ if __name__ == '__main__':
     HOST = '172.31.81.140'  # Standard loopback interface address (localhost)s
     PORT = 21212  # Port to listen on (non-privileged ports are > 1023)
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((HOST, PORT))
-    s.listen()
+    obdSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    obdSocket.bind((HOST, PORT))
+    obdSocket.listen()
     print("Server is Listening...")
     print("Please Wait")
     
 
     while True:
         print('on while waiting for accept')
-        conn, addr = s.accept()
+        conn, addr = obdSocket.accept()
         print("Conneting..",addr)
         
         # Initializing Threading
         thread = threading.Thread(
             target=new_client,
-            args=(conn, addr)
+            args=(obdSocket, conn, addr)
         )
 
         # Starting the Thread
