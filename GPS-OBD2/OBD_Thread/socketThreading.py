@@ -23,7 +23,7 @@ class SocketThread(threading.Thread):
             try:
                 print ("Connection from : ", self.clientAddress)
                 print('device number : ' , self.deviceCount)
-                print('thread identity:{0}, device number: {1}',format(str(threading.get_ident()),self.deviceCount))
+                print('thread identity:{0}, device number: {1}'.format(str(threading.get_ident()),str(self.deviceCount)))
                 data = self.csocket.recv(1024)
                 IST = pytz.timezone('Asia/Kolkata') 
                 dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
