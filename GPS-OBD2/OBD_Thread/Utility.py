@@ -1,10 +1,8 @@
 import boto3
 import folium
-import numpy as np
 from IPython.display import HTML
 from math import sin, cos, sqrt, atan2, radians
 import datetime
-from obd_gps import gps_one, gps_main
 from Utils.calculate_engine_RPM import calculate_engine_RPM
 import pytz   
 

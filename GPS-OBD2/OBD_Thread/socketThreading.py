@@ -1,7 +1,6 @@
 import datetime
 import threading
 from Utility import convert_raw_to_information,gps_one,gps_main
-
 import boto3
 import pytz
 
