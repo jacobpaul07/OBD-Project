@@ -18,12 +18,11 @@ class SocketThread(threading.Thread):
     def run(self):
        
         cli = boto3.client('s3')
-        print ("Connection from : ", self.clientAddress)
-        print('device number :' , self.deviceCount)
-        #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
-        msg = ''
+        
         while True:
             try:
+                print ("Connection from : ", self.clientAddress)
+                print('device number :' , self.deviceCount)
                 data = self.csocket.recv(1024)
                 IST = pytz.timezone('Asia/Kolkata') 
                 dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
