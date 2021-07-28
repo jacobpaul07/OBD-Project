@@ -6,6 +6,14 @@ from Utils.calculate_engine_RPM import calculate_engine_RPM
 import threading
 import pytz    
 
+# Threading lock
+global_lock = threading.Lock()
+
+# Initializing The StopThread as boolean-False
+stopThread: bool = False
+
+listOfActiveDevices = []
+
 
 def convert_LOGIN_data(login_data):
     """
@@ -196,76 +204,78 @@ def convert_raw_to_information(input_data):
 
 
 def new_client(deviceid , connection , address):
-    print('In Threading : Site', deviceid)
-    count = 0
-    gpslist_lat=[]
-    gpslist_lon=[]
+    with global_lock:
+        print('In Threading : Site', deviceid)
+        count = 0
+        gpslist_lat=[]
+        gpslist_lon=[]
 
-    IST = pytz.timezone('Asia/Kolkata') 
-    dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
-    print('Connected by', address)
-    try:
-        data = connection.recv(1024)
-        print("TimeStamp: ", dateTimeIND)
-        print(data)
+        IST = pytz.timezone('Asia/Kolkata') 
+        dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
+        print('Connected by', address)
+        try:
+            data = connection.recv(1024)
+            print("TimeStamp: ", dateTimeIND)
+            print(data)
 
-        if not data:
-            return
+            if not data:
+                return
 
-        fData = convert_raw_to_information(data)
-        IMEI = fData["IMEI"]
-        atIMEI = "@"+IMEI
-        messageType = "00"
-        sequenceNumber = fData["Sequence No"]
-        checkSum = "*CS"
-        packet = atIMEI,messageType,sequenceNumber,checkSum
-        seperator = ","
-        joinedPacket = seperator.join(packet)
-        bytesPacket = bytes(joinedPacket, 'utf-8')
-        print("Return Packet:",bytesPacket)
+            fData = convert_raw_to_information(data)
+            IMEI = fData["IMEI"]
+            atIMEI = "@"+IMEI
+            messageType = "00"
+            sequenceNumber = fData["Sequence No"]
+            checkSum = "*CS"
+            packet = atIMEI,messageType,sequenceNumber,checkSum
+            seperator = ","
+            joinedPacket = seperator.join(packet)
+            bytesPacket = bytes(joinedPacket, 'utf-8')
+            print("Return Packet:",bytesPacket)
 
 
-        if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
-            lat = fData["Latitude"]
-            lon = fData["Longitude"]
-            if count == 0:
-                gpslist_lat.insert(0,lat)
-                gpslist_lon.insert(0,lon)
-                if lat == "":
-                    print("No Lat Lon available")
-                else:
-                    count += 1
-                    coordinates = {'Latitude' : lat, 'Longitude' : lon,'IMEI': IMEI, 'timestamp' : dateTimeIND}
-                        
+            if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+                lat = fData["Latitude"]
+                lon = fData["Longitude"]
+                if count == 0:
+                    gpslist_lat.insert(0,lat)
+                    gpslist_lon.insert(0,lon)
+                    if lat == "":
+                        print("No Lat Lon available")
+                    else:
+                        count += 1
+                        coordinates = {'Latitude' : lat, 'Longitude' : lon,'IMEI': IMEI, 'timestamp' : dateTimeIND}
+                            
+                        cli.put_object(
+                            Body=str(coordinates),
+                            Bucket='ec2-obd2-bucket',
+                            Key='{0}/Data/{0}_lat_lon_initial.txt'.format(IMEI))
+                        gps_one(lat, lon)
+                else:     
+                    coordinates = {'Latitude' : lat, 'Longitude' : lon, 'IMEI':IMEI, 'timestamp' : dateTimeIND }
                     cli.put_object(
                         Body=str(coordinates),
                         Bucket='ec2-obd2-bucket',
-                        Key='{0}/Data/{0}_lat_lon_initial.txt'.format(IMEI))
-                    gps_one(lat, lon)
-            else:     
-                coordinates = {'Latitude' : lat, 'Longitude' : lon, 'IMEI':IMEI, 'timestamp' : dateTimeIND }
-                cli.put_object(
-                    Body=str(coordinates),
-                    Bucket='ec2-obd2-bucket',
-                    Key='{0}/Data/{0}_lat_lon.txt'.format(IMEI))
-                gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+                        Key='{0}/Data/{0}_lat_lon.txt'.format(IMEI))
+                    gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
-            print("initial:",gpslist_lat[0],gpslist_lon[0])
-            print("live: ",lat,lon)
-        connection.send(bytesPacket)
+                print("initial:",gpslist_lat[0],gpslist_lon[0])
+                print("live: ",lat,lon)
+            connection.send(bytesPacket)
 
-    except Exception as exception:
-        print ("Error:",exception)
-    print(count)
-    print("--------------------------------------------------------------------------------------------")
+        except Exception as exception:
+            print ("Error:",exception)
+        print(count)
+        print("--------------------------------------------------------------------------------------------")
 
-    # Initializing Thread Callback
-    thread = threading.Thread(
-        target=new_client,
-        args=(deviceid , connection, address)
-    )
-    # Starting the Thread
-    thread.start()
+        # Initializing Thread Callback
+        thread = threading.Thread(
+            target=new_client,
+            args=(deviceid , connection, address)
+        )
+        # Starting the Thread
+        thread.start()
+        
     
 
 if __name__ == '__main__':
@@ -294,7 +304,9 @@ if __name__ == '__main__':
             args=(devices, conn, addr)
         )
 
+        print(thread.ident)
         # Starting the Thread
         thread.start()
+
     obdSocket.close()
 
