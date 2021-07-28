@@ -181,7 +181,7 @@ def convert_raw_to_information(input_data):
 
 
 def new_client(deviceid , connection , address):
-    print('In Threading : ', deviceid)
+    print('In Threading : Site', deviceid)
     count = 0
     gpslist_lat=[]
     gpslist_lon=[]
@@ -189,53 +189,58 @@ def new_client(deviceid , connection , address):
     IST = pytz.timezone('Asia/Kolkata') 
     dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
     print('Connected by', address)
-    data = connection.recv(1024)
-    print("TimeStamp: ", dateTimeIND)
-    print(data)
+    try:
+        data = connection.recv(1024)
+        print("TimeStamp: ", dateTimeIND)
+        print(data)
 
-    if not data:
-        return
+        if not data:
+            return
 
-    fData = convert_raw_to_information(data)
-    IMEI = "@"+fData["IMEI"]
-    messageType = "00"
-    sequenceNumber = fData["Sequence No"]
-    checkSum = "*CS"
-    packet = IMEI,messageType,sequenceNumber,checkSum
-    seperator = ","
-    joinedPacket = seperator.join(packet)
-    bytesPacket = bytes(joinedPacket, 'utf-8')
-    print("Return Packet:",bytesPacket)
+        fData = convert_raw_to_information(data)
+        IMEI = "@"+fData["IMEI"]
+        messageType = "00"
+        sequenceNumber = fData["Sequence No"]
+        checkSum = "*CS"
+        packet = IMEI,messageType,sequenceNumber,checkSum
+        seperator = ","
+        joinedPacket = seperator.join(packet)
+        bytesPacket = bytes(joinedPacket, 'utf-8')
+        print("Return Packet:",bytesPacket)
 
 
-    if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
-        lat = fData["Latitude"]
-        lon = fData["Longitude"]
-        if count == 0:
-            gpslist_lat.insert(0,lat)
-            gpslist_lon.insert(0,lon)
-            if lat == "":
-                print("No Lat Lon available")
-            else:
-                count += 1
+        if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+            lat = fData["Latitude"]
+            lon = fData["Longitude"]
+            if count == 0:
+                gpslist_lat.insert(0,lat)
+                gpslist_lon.insert(0,lon)
+                if lat == "":
+                    print("No Lat Lon available")
+                else:
+                    count += 1
+                    coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                        
+                    cli.put_object(
+                        Body=str(coordinates),
+                        Bucket='ec2-obd2-bucket',
+                        Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
+                    gps_one(lat, lon)
+            else:     
                 coordinates = {'Latitude' : lat, 'Longitude' : lon }
-                    
                 cli.put_object(
                     Body=str(coordinates),
                     Bucket='ec2-obd2-bucket',
-                    Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
-                gps_one(lat, lon)
-        else:     
-            coordinates = {'Latitude' : lat, 'Longitude' : lon }
-            cli.put_object(
-                Body=str(coordinates),
-                Bucket='ec2-obd2-bucket',
-                Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
-            gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
+                    Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
+                gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
-        print("initial:",gpslist_lat[0],gpslist_lon[0])
-        print("live: ",lat,lon)
-    connection.send(bytesPacket)
+            print("initial:",gpslist_lat[0],gpslist_lon[0])
+            print("live: ",lat,lon)
+        connection.send(bytesPacket)
+        
+    except Exception as e:
+        print ("Error:",e)
+
     print("--------------------------------------------------------------------------------------------")
 
     # Initializing Thread Callback
@@ -263,9 +268,9 @@ if __name__ == '__main__':
     devices = 0
     while True:
         devices = devices + 1
-        print('On while waiting next OBD device: ', devices)
+        print('Waiting for next OBD device: ', devices)
         conn, addr = obdSocket.accept()
-        print("Conneting..",addr)
+        print("Conneting to Device with IP:",addr)
         
         # Initializing Threading
         thread = threading.Thread(
