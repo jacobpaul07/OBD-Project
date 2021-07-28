@@ -99,6 +99,8 @@ def convert_raw_to_information(input_data):
     Function that'll convert Raw input from OBD to formatted dictionary containing all the information
     needed for the UI
     """
+    IST = pytz.timezone('Asia/Kolkata') 
+    dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
     # --------- Data decoding from byte to str ---------
     input_file = input_data.decode("UTF-8", errors='ignore')
 
@@ -110,38 +112,70 @@ def convert_raw_to_information(input_data):
     if len(raw_data) < 8:
         login_data = convert_LOGIN_data(raw_data)
         IMEI = login_data["IMEI"]
+        # S3 Log Login Data
         cli.put_object(
             Body=str(login_data),
             Bucket='ec2-obd2-bucket',
-            Key='{0}/Login/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
+            Key='{0}/Login/Log/OBD2--{1}.txt'.format(IMEI,str(dateTimeIND)))
+        
+        # S3 Latest Login Data
+        cli.put_object(
+            Body=str(login_data),
+            Bucket='ec2-obd2-bucket',
+            Key='{0}/Login/Latest/login.txt'.format(IMEI))
         return login_data
 
-    # --------- GPS vs OBD Data ---------
+    # --------- GPS Data ---------
     elif raw_data[1] == "ATL":
         gps_data = convert_GPS_data(raw_data)
         IMEI = gps_data["IMEI"]
-        if raw_data[0] == "L":
-            cli.put_object(
-                Body=str(gps_data),
-                Bucket='ec2-obd2-bucket',
-                Key='{0}/GPS/L/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
+        # S3 Log GPS Data
+        cli.put_object(
+            Body=str(gps_data),
+            Bucket='ec2-obd2-bucket',
+            Key='{0}/GPS/Log/OBD2--{1}.txt'.format(IMEI,str(dateTimeIND)))
 
-        elif raw_data[0] == "H":
+        if raw_data[0] == "L":     
+            # S3 Latest GPS 'L' Data
             cli.put_object(
                 Body=str(gps_data),
                 Bucket='ec2-obd2-bucket',
-                Key='{0}/GPS/H/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
+                Key='{0}/GPS/Latest/L.txt'.format(IMEI))
+            
+        elif raw_data[0] == "H":
+             # S3 Latest GPS 'H' Data
+            cli.put_object(
+                Body=str(gps_data),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/GPS/Latest/H.txt'.format(IMEI))
         return gps_data
 
+    # --------- OBD Data ---------
     elif raw_data[1] == "ATLOBD":
         obd_data = convert_OBD_data(raw_data)
         rpm = calculate_engine_RPM(obd_data)
         print(f'Engine RPM = {rpm}')
         IMEI = obd_data["IMEI"]
+        # S3 Log OBD Data
         cli.put_object(
             Body=str(obd_data),
             Bucket='ec2-obd2-bucket',
-            Key='{0}/OBD/OBD2--{1}.txt'.format(IMEI,str(datetime.datetime.now())))
+            Key='{0}/OBD/Log/OBD2--{1}.txt'.format(IMEI,str(dateTimeIND)))
+
+        if raw_data[0] == "L":     
+            # S3 Latest OBD 'L' Data
+            cli.put_object(
+                Body=str(obd_data),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/OBD/Latest/L.txt'.format(IMEI))
+            
+        elif raw_data[0] == "H":
+             # S3 Latest GPS 'H' Data
+            cli.put_object(
+                Body=str(obd_data),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/OBD/Latest/H.txt'.format(IMEI))
+
         return obd_data
     # -----------------------------------
 
@@ -152,6 +186,8 @@ def new_client(deviceid , connection , address):
     gpslist_lat=[]
     gpslist_lon=[]
 
+    IST = pytz.timezone('Asia/Kolkata') 
+    dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
     print('Connected by', address)
     data = connection.recv(1024)
     print("TimeStamp: ", dateTimeIND)
@@ -170,6 +206,7 @@ def new_client(deviceid , connection , address):
     joinedPacket = seperator.join(packet)
     bytesPacket = bytes(joinedPacket, 'utf-8')
     print("Return Packet:",bytesPacket)
+
 
     if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
         lat = fData["Latitude"]
@@ -223,8 +260,6 @@ if __name__ == '__main__':
     obdSocket.listen()
     print("Server is Listening...")
     print("Please Wait")
-    IST = pytz.timezone('Asia/Kolkata') 
-    dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%d%H:%M:%S.%f")
     devices = 0
     while True:
         devices = devices + 1
