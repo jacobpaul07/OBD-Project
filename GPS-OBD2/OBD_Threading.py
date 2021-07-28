@@ -304,7 +304,7 @@ if __name__ == '__main__':
             args=(devices, conn, addr)
         )
 
-        print(thread.ident)
+        print(str(thread.native_id))
         # Starting the Thread
         thread.start()
 
