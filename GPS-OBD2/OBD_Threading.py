@@ -303,10 +303,10 @@ if __name__ == '__main__':
             target=new_client,
             args=(devices, conn, addr)
         )
-
-        print(str(thread.native_id))
+        
         # Starting the Thread
         thread.start()
+        print(str(thread.native_id))
 
     obdSocket.close()
 
