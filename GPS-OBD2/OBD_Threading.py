@@ -154,8 +154,7 @@ def new_client(deviceid , connection , address):
 
     print('Connected by', address)
     data = connection.recv(1024)
-    IST = pytz.timezone('Asia/Kolkata') 
-    print("TimeStamp: ", datetime.datetime.now(IST))
+    print("TimeStamp: ", dateTimeIND)
     print(data)
 
     if not data:
@@ -187,14 +186,14 @@ def new_client(deviceid , connection , address):
                 cli.put_object(
                     Body=str(coordinates),
                     Bucket='ec2-obd2-bucket',
-                    Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+                    Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
                 gps_one(lat, lon)
         else:     
             coordinates = {'Latitude' : lat, 'Longitude' : lon }
             cli.put_object(
                 Body=str(coordinates),
                 Bucket='ec2-obd2-bucket',
-                Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(datetime.datetime.now())))
+                Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
             gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
         print("initial:",gpslist_lat[0],gpslist_lon[0])
@@ -224,7 +223,8 @@ if __name__ == '__main__':
     obdSocket.listen()
     print("Server is Listening...")
     print("Please Wait")
-    
+    IST = pytz.timezone('Asia/Kolkata') 
+    dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%d%H:%M:%S.%f")
     devices = 0
     while True:
         devices = devices + 1
