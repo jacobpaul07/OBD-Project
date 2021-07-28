@@ -156,6 +156,11 @@ def convert_raw_to_information(input_data):
         rpm = calculate_engine_RPM(obd_data)
         print(f'Engine RPM = {rpm}')
         IMEI = obd_data["IMEI"]
+        # S3 RPM Data
+        cli.put_object(
+                Body=str(rpm),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/OBD/Latest/RPM.txt'.format(IMEI))
         # S3 Log OBD Data
         cli.put_object(
             Body=str(obd_data),
