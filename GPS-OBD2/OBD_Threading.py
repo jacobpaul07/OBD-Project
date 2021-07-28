@@ -237,9 +237,9 @@ def new_client(deviceid , connection , address):
             print("initial:",gpslist_lat[0],gpslist_lon[0])
             print("live: ",lat,lon)
         connection.send(bytesPacket)
-        
-    except Exception as e:
-        print ("Error:",e)
+
+    except Exception as exception:
+        print ("Error:",exception)
 
     print("--------------------------------------------------------------------------------------------")
 
