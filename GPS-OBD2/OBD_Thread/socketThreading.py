@@ -33,6 +33,8 @@ class SocketThread(threading.Thread):
                     print('device number : ' , self.deviceCount)
                     print('thread identity:{0}, device number: {1}'.format(str(threading.get_ident()),str(self.deviceCount)))
                     print(data)
+                    self.count = self.count + 1
+                    print('count : ' ,str(self.count))
 
                     if not data:
                         return
@@ -59,7 +61,7 @@ class SocketThread(threading.Thread):
                             if lat == "":
                                 print("No Lat Lon available")
                             else:
-                                self.count += 1
+                                #self.count += 1
                                 coordinates = {'Latitude' : lat, 'Longitude' : lon,'IMEI': IMEI, 'timestamp' : dateTimeIND}
                                     
                                 cli.put_object(
