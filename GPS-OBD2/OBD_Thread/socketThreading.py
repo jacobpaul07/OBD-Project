@@ -5,11 +5,12 @@ import boto3
 import pytz
 
 class SocketThread(threading.Thread):
-    def __init__(self,clientAddress,clientsocket):
+    def __init__(self,clientAddress,clientsocket,deviceCount):
         threading.Thread.__init__(self)
         self.csocket = clientsocket
         self.clientAddress = clientAddress
         self.count = 0
+        self.deviceCount = deviceCount
         self.gpslist_lat = []
         self.gpslist_lon = []
         print ("New connection added: ", clientAddress)
@@ -18,6 +19,7 @@ class SocketThread(threading.Thread):
        
         cli = boto3.client('s3')
         print ("Connection from : ", self.clientAddress)
+        print('device number :' , self.deviceCount)
         #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
         msg = ''
         while True:
