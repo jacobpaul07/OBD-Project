@@ -1,6 +1,5 @@
 import boto3
 import folium
-from IPython.display import HTML
 from math import sin, cos, sqrt, atan2, radians
 import datetime
 import pytz   
@@ -81,7 +80,7 @@ def gps_main(lat, lon, lat_live, lon_live):
                   fill=True,
                   ).add_to(map_obd)
     map_obd.add_child(folium.LatLngPopup())
-    
+
     # map_obd.save('OBD-Project/GeoMaps/current_OBD_current_location.html')
     # HTML('<iframe src=OBD-Project/GeoMaps/current_OBD_current_location.html width=700 height=450></ifrme>')
 
