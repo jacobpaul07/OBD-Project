@@ -4,6 +4,7 @@ import datetime
 from obd_gps import gps_one, gps_main
 from Utils.calculate_engine_RPM import calculate_engine_RPM
 import threading
+import pytz    
 
 
 def convert_LOGIN_data(login_data):
@@ -153,7 +154,8 @@ def new_client(deviceid , connection , address):
 
     print('Connected by', address)
     data = connection.recv(1024)
-    print("TimeStamp: ", datetime.datetime.now())
+    IST = pytz.timezone('Asia/Kolkata') 
+    print("TimeStamp: ", datetime.datetime.now(IST))
     print(data)
 
     if not data:
