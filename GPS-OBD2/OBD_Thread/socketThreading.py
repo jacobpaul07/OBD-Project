@@ -1,0 +1,86 @@
+import datetime
+import socket, threading
+from OBD_Threading import convert_raw_to_information,gps_one,gps_main
+
+import boto3
+import pytz
+
+class SocketThread(threading.Thread):
+    def __init__(self,clientAddress,clientsocket):
+        threading.Thread.__init__(self)
+        self.csocket = clientsocket
+        self.clientAddress = clientAddress
+        self.count = 0
+        self.gpslist_lat = []
+        self.gpslist_lon = []
+        print ("New connection added: ", clientAddress)
+
+    def run(self):
+        
+
+        cli = boto3.client('s3')
+        print ("Connection from : ", self.clientAddress)
+        #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
+        msg = ''
+        while True:
+            try:
+                data = self.csocket.recv(1024)
+                IST = pytz.timezone('Asia/Kolkata') 
+                dateTimeIND = datetime.datetime.now(IST).strftime("%Y-%m-%dT%H:%M:%S.%f")
+                print("TimeStamp: ", dateTimeIND)
+                print(data)
+
+                if not data:
+                    return
+
+                fData = convert_raw_to_information(data)
+                IMEI = fData["IMEI"]
+                atIMEI = "@"+IMEI
+                messageType = "00"
+                sequenceNumber = fData["Sequence No"]
+                checkSum = "*CS"
+                packet = atIMEI,messageType,sequenceNumber,checkSum
+                seperator = ","
+                joinedPacket = seperator.join(packet)
+                bytesPacket = bytes(joinedPacket, 'utf-8')
+                print("Return Packet:",bytesPacket)
+
+
+                if fData["Message Type"] == "02" and fData["Live/Memory"] == "L":
+                    lat = fData["Latitude"]
+                    lon = fData["Longitude"]
+                    if self.count == 0:
+                        self.gpslist_lat.insert(0,lat)
+                        self.gpslist_lon.insert(0,lon)
+                        if lat == "":
+                            print("No Lat Lon available")
+                        else:
+                            self.count += 1
+                            coordinates = {'Latitude' : lat, 'Longitude' : lon,'IMEI': IMEI, 'timestamp' : dateTimeIND}
+                                
+                            cli.put_object(
+                                Body=str(coordinates),
+                                Bucket='ec2-obd2-bucket',
+                                Key='{0}/Data/{0}_lat_lon_initial.txt'.format(IMEI))
+                            gps_one(lat, lon)
+                    else:     
+                        coordinates = {'Latitude' : lat, 'Longitude' : lon, 'IMEI':IMEI, 'timestamp' : dateTimeIND }
+                        cli.put_object(
+                            Body=str(coordinates),
+                            Bucket='ec2-obd2-bucket',
+                            Key='{0}/Data/{0}_lat_lon.txt'.format(IMEI))
+                        gps_main(self.gpslist_lat[0],self.gpslist_lon[0],lat,lon)
+
+                    print("initial:",self.gpslist_lat[0],self.gpslist_lon[0])
+                    print("live: ",lat,lon)
+                self.csocket.send(bytesPacket)
+                print ("Client at ", self.clientAddress , " disconnected...")
+
+            except Exception as exception:
+                print ("Error:",exception)
+            print(self.count)
+            print("--------------------------------------------------------------------------------------------")
+
+
+         
+        
