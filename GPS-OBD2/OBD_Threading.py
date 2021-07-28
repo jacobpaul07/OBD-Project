@@ -256,7 +256,7 @@ def new_client(deviceid , connection , address):
 
     except Exception as exception:
         print ("Error:",exception)
-
+    print(count)
     print("--------------------------------------------------------------------------------------------")
 
     # Initializing Thread Callback
