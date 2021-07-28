@@ -15,8 +15,7 @@ class SocketThread(threading.Thread):
         print ("New connection added: ", clientAddress)
 
     def run(self):
-        
-
+       
         cli = boto3.client('s3')
         print ("Connection from : ", self.clientAddress)
         #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))

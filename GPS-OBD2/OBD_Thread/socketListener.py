@@ -1,5 +1,6 @@
-from socketThreading import SocketThread
+
 import socket
+from socketThreading import SocketThread
 
 LOCALHOST = "172.31.81.140"
 PORT = 21212
