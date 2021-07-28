@@ -158,7 +158,7 @@ def convert_raw_to_information(input_data):
         
         if rpm:
             print(f'Engine RPM = {rpm}')
-            rpmdata = { 'RPM' : rpm, 'timestamp' : dateTimeIND}  
+            rpmdata = { 'RPM' : rpm, 'IMEI': IMEI,'timestamp' : dateTimeIND}  
             cli.put_object(
                 Body=str(rpmdata),
                 Bucket='ec2-obd2-bucket',
@@ -213,11 +213,12 @@ def new_client(deviceid , connection , address):
             return
 
         fData = convert_raw_to_information(data)
-        IMEI = "@"+fData["IMEI"]
+        IMEI = fData["IMEI"]
+        atIMEI = "@"+IMEI
         messageType = "00"
         sequenceNumber = fData["Sequence No"]
         checkSum = "*CS"
-        packet = IMEI,messageType,sequenceNumber,checkSum
+        packet = atIMEI,messageType,sequenceNumber,checkSum
         seperator = ","
         joinedPacket = seperator.join(packet)
         bytesPacket = bytes(joinedPacket, 'utf-8')
@@ -234,19 +235,19 @@ def new_client(deviceid , connection , address):
                     print("No Lat Lon available")
                 else:
                     count += 1
-                    coordinates = {'Latitude' : lat, 'Longitude' : lon, 'timestamp' : dateTimeIND}
+                    coordinates = {'Latitude' : lat, 'Longitude' : lon,'IMEI': IMEI, 'timestamp' : dateTimeIND}
                         
                     cli.put_object(
                         Body=str(coordinates),
                         Bucket='ec2-obd2-bucket',
-                        Key='{0}/Data/{0}_lat_lon_initial.txt'.format(fData["IMEI"]))
+                        Key='{0}/Data/{0}_lat_lon_initial.txt'.format(IMEI))
                     gps_one(lat, lon)
             else:     
-                coordinates = {'Latitude' : lat, 'Longitude' : lon, 'timestamp' : dateTimeIND }
+                coordinates = {'Latitude' : lat, 'Longitude' : lon, 'IMEI':IMEI, 'timestamp' : dateTimeIND }
                 cli.put_object(
                     Body=str(coordinates),
                     Bucket='ec2-obd2-bucket',
-                    Key='{0}/Data/{0}_lat_lon.txt'.format(fData["IMEI"]))
+                    Key='{0}/Data/{0}_lat_lon.txt'.format(IMEI))
                 gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
             print("initial:",gpslist_lat[0],gpslist_lon[0])
