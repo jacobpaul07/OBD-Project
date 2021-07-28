@@ -21,8 +21,8 @@ def gps_one(lat, lon):
                   fill=True,
                   ).add_to(mapit)
                   
-    mapit.save('OBD-Project/GeoMaps/current_0_location.html')
-    HTML('<iframe src=OBD-Project/GeoMaps/current_0_location.html width=700 height=450></ifrme>')
+    # mapit.save('OBD-Project/GeoMaps/current_0_location.html')
+    # HTML('<iframe src=OBD-Project/GeoMaps/current_0_location.html width=700 height=450></ifrme>')
 
 
 def gps_main(lat, lon, lat_live, lon_live):
@@ -81,8 +81,9 @@ def gps_main(lat, lon, lat_live, lon_live):
                   fill=True,
                   ).add_to(map_obd)
     map_obd.add_child(folium.LatLngPopup())
-    map_obd.save('OBD-Project/GeoMaps/current_OBD_current_location.html')
-    HTML('<iframe src=OBD-Project/GeoMaps/current_OBD_current_location.html width=700 height=450></ifrme>')
+    
+    # map_obd.save('OBD-Project/GeoMaps/current_OBD_current_location.html')
+    # HTML('<iframe src=OBD-Project/GeoMaps/current_OBD_current_location.html width=700 height=450></ifrme>')
 
 
 def convert_LOGIN_data(login_data):
