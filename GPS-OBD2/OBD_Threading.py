@@ -154,8 +154,18 @@ def convert_raw_to_information(input_data):
     elif raw_data[1] == "ATLOBD":
         obd_data = convert_OBD_data(raw_data)
         rpm = calculate_engine_RPM(obd_data)
-        print(f'Engine RPM = {rpm}')
         IMEI = obd_data["IMEI"]
+        
+        if rpm:
+            print(f'Engine RPM = {rpm}')
+            rpmdata = { 'RPM' : rpm, 'timestamp' : dateTimeIND}  
+            cli.put_object(
+                Body=str(rpmdata),
+                Bucket='ec2-obd2-bucket',
+                Key='{0}/Data/{0}_rpm.txt'.format(IMEI))
+        else:
+            print("No RPM data received")
+        
         # S3 RPM Data
         cli.put_object(
                 Body=str(rpm),
@@ -224,19 +234,19 @@ def new_client(deviceid , connection , address):
                     print("No Lat Lon available")
                 else:
                     count += 1
-                    coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                    coordinates = {'Latitude' : lat, 'Longitude' : lon, 'timestamp' : dateTimeIND}
                         
                     cli.put_object(
                         Body=str(coordinates),
                         Bucket='ec2-obd2-bucket',
-                        Key='{0}/GPS/Initial/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
+                        Key='{0}/Data/{0}_lat_lon_initial.txt'.format(fData["IMEI"]))
                     gps_one(lat, lon)
             else:     
-                coordinates = {'Latitude' : lat, 'Longitude' : lon }
+                coordinates = {'Latitude' : lat, 'Longitude' : lon, 'timestamp' : dateTimeIND }
                 cli.put_object(
                     Body=str(coordinates),
                     Bucket='ec2-obd2-bucket',
-                    Key='{0}/GPS/Live/OBD2--{1}.txt'.format(fData["IMEI"],str(dateTimeIND)))
+                    Key='{0}/Data/{0}_lat_lon.txt'.format(fData["IMEI"]))
                 gps_main(gpslist_lat[0],gpslist_lon[0],lat,lon)
 
             print("initial:",gpslist_lat[0],gpslist_lon[0])
